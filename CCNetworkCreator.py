@@ -18,22 +18,26 @@ except ImportError:
 	from PySide.QtUiTools import *
 	from shiboken import wrapInstance
 
-# import PyQt interface
+
 mayaMainWindowPtr = omui.MQtUtil.mainWindow()
 mayaMainWindow = wrapInstance(long(mayaMainWindowPtr), QWidget)
+# The above code is for importing my interface into maya
 
+# PRE-REQUISITES:
+# Must have geometry in scene and named them with *_geo
+# must have aiStandardSurface shader created, and named with *_shdr
 
-class ShaderCreator(QWidget):
+class CCNetworkCreator(QWidget):
 
 	# Global Variables
 	global tickedAttribList
 	tickedAttribList = []
 
-	global textboxes
-	textboxes = []
+	global textboxesArr
+	textboxesArr = []
 
-	global aiCCnodeList
-	aiCCnodeList = []
+	global aiCCNodeList
+	aiCCNodeList = []
 
 	global createdtexture
 	createdtexture = []
@@ -43,7 +47,7 @@ class ShaderCreator(QWidget):
 
 
 	def __init__(self,*args, **kwargs):
-		super(ShaderCreator,self, *args).__init__(**kwargs)
+		super(CCNetworkCreator,self, *args).__init__(**kwargs)
 		self.setParent(mayaMainWindow)
 		self.setWindowFlags(Qt.Window)
 		self.initUI()
@@ -51,7 +55,6 @@ class ShaderCreator(QWidget):
 		self.numberOfNodesCreated = 0
 
 		# populate combo box for selecting geometry 
-			# NOTE: user must have geometry in scene and named them with *_geo
 		cmds.select( '*_geo', r= True)
 		list = cmds.ls( selection=True)
 		self.ui.aiSScomboBox.addItems(list)
@@ -60,15 +63,14 @@ class ShaderCreator(QWidget):
 		
 
 		# populate combo box for selecting shader
-			# NOTE: user must have aiStandardSurface and named them with *_shdr
 		cmds.select( '*_shdr', r= True)
 		list2 = cmds.ls( selection=True)
 		self.ui.shaderComboBox.addItems(list2) 
-		#-->invokes function when shader combo box value changes
+		# invokes function when shader combo box value changes
 		self.ui.shaderComboBox.currentIndexChanged.connect(self.updateshaderComboBox)
 	
 
-		# Button to assign shader to geometry
+		#Button to assign shader to geometry
 		self.ui.assignShaderBtn.clicked.connect(self.clickedShaderBtn)
 
 
@@ -80,44 +82,38 @@ class ShaderCreator(QWidget):
 		self.ui.shaderComboBox2.currentIndexChanged.connect(self.updateshaderComboBox2)
 
 
-		# set up the check box to create colorCorrect nodes
-		self.ui.baseColCheck.stateChanged.connect(self.updatebaseColCheck)
-		self.ui.specColCheck.stateChanged.connect(self.updatespecColCheck)
-		self.ui.specRoughCheck.stateChanged.connect(self.updatespecRoughCheck)
+		# set up the check box to create colorCorrect nodes. All checkboxes are listened by the function updateCheckbox
+		self.ui.baseColCheck.stateChanged.connect(lambda:self.updateCheckbox(self.ui.baseColCheck))
+		self.ui.specColCheck.stateChanged.connect(lambda:self.updateCheckbox(self.ui.specColCheck))
+		self.ui.specRoughCheck.stateChanged.connect(lambda:self.updateCheckbox(self.ui.specRoughCheck))
+		# self.ui.specColCheck.stateChanged.connect(self.updateCheckbox)
+		# self.ui.specRoughCheck.stateChanged.connect(self.updateCheckbox)
 		
 
-		# button to create aiImage file (ultility)
-		self.ui.createaii.clicked.connect(self.createaii_buttonPressed)
-
-
-		# populate aiImage (texture) box 
-			#Renamed image populate itself in every next box when aiImage is created 
-		self.ui.INtexture1.textChanged.connect(self.updateINtexture)
-
+		#button to create aiImage file (ultility)
+		self.ui.createAIImg.clicked.connect(self.createAIImg)
 
 		# open file Dialog to link actual image file to aiImage 
-		self.ui.fileLinkBtn1.clicked.connect(self.openFileDialog1)
+		self.ui.fileLinkBtn1.clicked.connect(self.openFileDialog)
 		self.ui.fileLinkBtn2.clicked.connect(self.openFileDialog2)
 		self.ui.fileLinkBtn3.clicked.connect(self.openFileDialog3)
 		self.ui.fileLinkBtn4.clicked.connect(self.openFileDialog4)
 
 
-		# create ai color correct nodes
-		self.ui.createaiCCBtn.clicked.connect(self.createaiCCBtn_buttonPressed)
+		#create ai color correct nodes
+		self.ui.createCCNode.clicked.connect(self.createCCNode)
 
-		# activate select shader button 
+		#activate select shader button 
 		self.ui.selShaderBtn.clicked.connect(self.selShaderBtnPressed)
 
 		# connect ai CC to channels button
-		self.ui.connectaiCCBtn.clicked.connect(self.clickedconnectCCBtn)
+		self.ui.connectaiCCBtn.clicked.connect(self.connectCCNetwork)
 
 #----------this section calls up the initial value for blank boxes that need them------------------------
 	def loadInitialValues(self):
-		self.updateaiSScomboBox()
+		self.updateaiSScomboBox
 		self.updateshaderComboBox
-		self.updateassignShaderBtn()
-		self.updateINtexture 
-		self.updateINtexture2
+		self.updateassignShaderBtn
 		self.updateshaderComboBox2
 	
 
@@ -126,7 +122,7 @@ class ShaderCreator(QWidget):
 	def initUI(self):
 		loader = QUiLoader()
 		currentDir = os.path.dirname(__file__)
-		file = QFile(currentDir + "/ShaderCreator.ui")
+		file = QFile(currentDir + "/CCNetworkCreator.ui")
 		file.open(QFile.ReadOnly)
 		self.ui = loader.load(file, parentWidget=self)
 		file.close()
@@ -140,7 +136,6 @@ class ShaderCreator(QWidget):
 	def updateshaderComboBox(self, *args):
 		selectedShaderName = str(self.ui.shaderComboBox.currentText())
 		selectedShader = cmds.select(selectedShaderName, r = True)
-		print("Selected: " + selectedShaderName + " " + str(selectedShader))
 
 	#assign shader to geometry
 	def clickedShaderBtn(self, *args):
@@ -155,168 +150,151 @@ class ShaderCreator(QWidget):
 		selectedShader = cmds.select(selectedShaderName, r = True)
 
 	
-	# invoke when checkbox is ticked
-		#aiImage will be renamed according to which checkboxes are checked
-		#must tick checkbox before creating aiImage;  limit:4 
-	def updatebaseColCheck(self,*args):
-		isTicked = self.ui.baseColCheck.isChecked()
-		attribName = "baseColor"
+	# invoke when any checkbox is ticked / unticked
+	# aiImage will be renamed according to which checkboxes are checked
+	def updateCheckbox(self, updatedCheckbox):
+		isTicked = updatedCheckbox.isChecked()
+		updatedAttrWtSpace = updatedCheckbox.text()
+		updatedAttr = updatedAttrWtSpace.replace(" ", "")
+
 		if isTicked: 
-			tickedAttribList.append(attribName)
+			tickedAttribList.append(updatedAttr)
 
 		else:
-			tickedAttribList.remove(attribName)
+			tickedAttribList.remove(updatedAttr)
 
-	def updatespecColCheck(self,*args):
-		isTicked = self.ui.specColCheck.isChecked()
-		attribName = "specColor"
-		if isTicked: 
-			tickedAttribList.append(attribName)
+	# create Textures (aiImage) 
+	# will only work when checkbox is ticked 
+	def createAIImg(self,*args):
+		# hard coded array to store texboxes. Look for comments above connectCCNetwork().
+		self.textboxesArr = [[self.ui.INtexture1,self.ui.fileBox1],[self.ui.INtexture2,self.ui.fileBox2],[self.ui.INtexture3,self.ui.fileBox3],[self.ui.INtexture4,self.ui.fileBox4]]
 
-		else:
-			tickedAttribList.remove(attribName)
+		# clear textbox before creating new aiImg node for another round
+		for items in self.textboxesArr:
+			items[0].setText("")
 
-		
-	def updatespecRoughCheck(self,*args):
-		isTicked = self.ui.specRoughCheck.isChecked()
-		attribName = "specRoughness"
-		if isTicked: 
-			tickedAttribList.append(attribName)
-
-		else:
-			tickedAttribList.remove(attribName)
-		
-
-	#create Textures (aiImage) 
-			#will only work when checkbox is ticked 
-
-	def createaii_buttonPressed(self,*args):
-		self.textboxes = [[self.ui.INtexture1,self.ui.fileBox1],[self.ui.INtexture2,self.ui.fileBox2],[self.ui.INtexture3,self.ui.fileBox3],[self.ui.INtexture4,self.ui.fileBox4]]
 		# create aiImages according to selected checkboxes and renamed 
-		for obj in tickedAttribList:
-			#rename the newly created aiImage to the ticked checkbox
-			newImgName = "aiImg" + str(obj)
+		for attrName in tickedAttribList:
+			# rename the newly created aiImage according to the ticked checkboxes
+			newImgName = "aiImg" + str(attrName)
 			aiImage_node = cmds.shadingNode("aiImage", asTexture=True)
 			originalName = str(cmds.ls(aiImage_node)[0])
 			cmds.rename(originalName, newImgName)
 
-			if self.numberOfNodesCreated <= 3:
-				textbox = self.textboxes[self.numberOfNodesCreated]
-				textbox[0].setText(newImgName)
-				textbox[1].setEnabled(True)
-			else:
-				print('max nodes created')
-			self.numberOfNodesCreated += 1
+			# list the name and directory of aiImage nodes that are created
+			index = tickedAttribList.index(attrName)
+			textbox = self.textboxesArr[index]
+			textbox[0].setText(newImgName)
+			textbox[1].setEnabled(True)
 
-	def updateINtexture(self,*args):
-		print("Texture Created")
-
-
-	#calls up the file dialog browser 
-	def openFileDialog1(self, *args):
-
+	def openDialog(self, *args):
 		multipleFilters = "TX Files (*.tx);;Exr Files (*.exr);;All Files (*.*)"
-		filepath = cmds.fileDialog2(fileFilter=multipleFilters, dialogStyle=2)
-		#put infomation into file box 1 and link up to aiImage
-		self.ui.fileBox1.setText(filepath[0])
+		filePath = cmds.fileDialog2(fileFilter = multipleFilters, dialogStyle = 2, fileMode = 1, caption = "Select texture", okCaption = "Select")[0]
+		return filePath
+
+	def assignTexture(self, imgName, filePath):
+		imgAttrName = str(imgName) + ".filename"
+		cmds.setAttr(imgAttrName, filePath, type = "string")
+		cmds.select(imgName)
+
+	# invokes dialog to browse for textures
+	def openFileDialog(self, *args):
+		filePath = self.openDialog()
+		# displays path in UI
+		self.ui.fileBox1.setText(filePath)
+		# craft texture path string
 		imgName = self.ui.INtexture1.toPlainText()
-		imgAttrName = str(imgName) + ".filename"
-		cmds.setAttr(imgAttrName, filepath, type = "string")
-		cmds.select(imgName)
-
-	def openFileDialog2(self, *args):
-
-		multipleFilters = "TX Files (*.tx);;Exr Files (*.exr);;All Files (*.*)"
-		filepath = cmds.fileDialog2(fileFilter=multipleFilters, dialogStyle=2)
-		#put infomation into file box 2
-		self.ui.fileBox2.setText(filepath[0])
-		imgName = self.ui.INtexture2.toPlainText()
-		imgAttrName = str(imgName) + ".filename"
-		cmds.setAttr(imgAttrName, filepath, type = "string")
-		cmds.select(imgName)
-		 
-	def openFileDialog3(self, *args):
-
-		multipleFilters = "TX Files (*.tx);;Exr Files (*.exr);;All Files (*.*)"
-		filepath = cmds.fileDialog2(fileFilter=multipleFilters, dialogStyle=2)
-		#put infomation into file box 3
-		self.ui.fileBox3.setText(filepath[0])
-		imgName = self.ui.INtexture3.toPlainText()
-		imgAttrName = str(imgName) + ".filename"
-		cmds.setAttr(imgAttrName, filepath, type = "string")
-		cmds.select(imgName)
-		print(imgName)
-		print(imgAttrName)
-		print(filepath)
-
-	def openFileDialog4(self, *args):
-
-		multipleFilters = "TX Files (*.tx);;Exr Files (*.exr);;All Files (*.*)"
-		filepath = cmds.fileDialog2(fileFilter=multipleFilters, dialogStyle=2)
-		#put infomation into file box 4
-		self.ui.fileBox4.setText(filepath[0])
-		imgName = self.ui.INtexture4.toPlainText()
-		imgAttrName = str(imgName) + ".filename"
-		cmds.setAttr(imgAttrName, filepath, type = "string")
-		cmds.select(imgName)
-
+		# assign texture path to aiImage node
+		self.assignTexture(imgName, filePath)
 		
 
-		#this button only works when checkbox is check; works alongside it
-		#it creates a colour correct node and renames it according to the chnl
-		#e.g.: aiCC_baseColour or aiCC_specColour 
+	def openFileDialog2(self, *args):
+		filePath = self.openDialog()
+		self.ui.fileBox2.setText(filePath)
+		imgName = self.ui.INtexture2.toPlainText()
+		self.assignTexture(imgName, filePath)
+		 
+	def openFileDialog3(self, *args):
+		filePath = self.openDialog()
+		self.ui.fileBox3.setText(filePath)
+		imgName = self.ui.INtexture3.toPlainText()
+		self.assignTexture(imgName, filePath)
 
-	def createaiCCBtn_buttonPressed(self,*args):
-		for obj in tickedAttribList:
-			aiColorCorrect_node=cmds.shadingNode("aiColorCorrect",asUtility=True)
-			ccName = str(cmds.ls(aiColorCorrect_node)[0])
-			newlynamedCC = cmds.rename(ccName,"aiCC_" + obj)
-			aiCCnodeList.append(newlynamedCC)
+	def openFileDialog4(self, *args):
+		filePath = self.openDialog()
+		self.ui.fileBox4.setText(filePath)
+		imgName = self.ui.INtexture4.toPlainText()
+		self.assignTexture(imgName, filePath)
+		
 
-	#select shader again for assignment to work
+		# This button only works when checkbox is checked; works alongside it
+		# It creates a colour correct node and renames it according to the chnl
+		# e.g.: aiCC_baseColour or aiCC_specColour 
+	def createCCNode(self,*args):
+		# clear list of CC nodes that will have their CCNodes created.
+		aiCCNodeList[:] = []
+
+		for attrName in tickedAttribList:
+			aiCCNode = cmds.shadingNode("aiColorCorrect",asUtility = True)
+			ccName = str(cmds.ls(aiCCNode)[0])
+			renamedCC = cmds.rename(ccName,"aiCC_" + attrName)
+			aiCCNodeList.append(renamedCC)
+
+	# Select shader again for assignment to work
 	def selShaderBtnPressed(self, *args):		
 		activeShaderName = str(self.ui.shaderComboBox2.currentText())
 		cmds.select(activeShaderName)
 
-	#Connects aiImage to aiColorCorrect to selected shader
+	# Connects aiImage to aiColorCorrect and then to selected shader. 
+	# The code loops through the hard-coded global textboxes array, looks for the aiImg node name that matches the ticked attribute name. 
+	# Name of the correct node is retrieved as str for connectAttr()
 
-	def clickedconnectCCBtn(self, *args):
+	# Future improvements: 
+	# 1.All attribute checkboxes are ticked WITH THE RIGHT ORDER
+	# 2. This code only works once. If a new set of aiImg nodes, are created, the code breaks
+
+	def connectCCNetwork(self, *args):
 		activeShaderName = str(self.ui.shaderComboBox2.currentText())
 		activeShader = cmds.select(activeShaderName, r = True)
 
-		
-		#if base color checkbox is ticked, connect aiImagebase color -> base colour CC node -> shader
+		# if base color checkbox is ticked, connect aiImagebase color -> base colour CC node -> shader
 		if self.ui.baseColCheck.isChecked():
-			activeCC = aiCCnodeList[0]
+			# Users might tick the checkboxes in various orders. This step makes sure that the correct CC node is connected to the correct channel
+
+			activeCC = aiCCNodeList[0]
 			cmds.connectAttr('%s.outColor' %activeCC ,'%s.baseColor' %activeShaderName)
 			# connect aiImage to aiCCNode
+
 			for i in range(0, 4): 
-				currentTextureName = self.textboxes[i][0].toPlainText()
-				if "baseCol" in currentTextureName:
+				currentTextureName = self.textboxesArr[i][0].toPlainText()
+				print currentTextureName
+				if "BaseColour" in currentTextureName:
+					print "connecting aiImg to CCNode"
 					textureNodeList = cmds.ls(currentTextureName)
+					print textureNodeList
 					baseColTextureNode = textureNodeList[0]
 					cmds.connectAttr('%s.outColor'%baseColTextureNode, '%s.input' %activeCC)
 		
 		#if spec color checkbox is ticked, connect aiImagespeccolor ->spec colour CC node -> shader
 		if self.ui.specColCheck.isChecked():
-			activeCC = aiCCnodeList[1]
+			activeCC = aiCCNodeList[1]
 			cmds.connectAttr('%s.outColor' %activeCC, '%s.specularColor' %activeShaderName)
 			# connect aiImage to aiCCNode
 			for i in range(0, 4): 
-				currentTextureName = self.textboxes[i][0].toPlainText()
-				if "specCol" in currentTextureName:
+				currentTextureName = self.textboxesArr[i][0].toPlainText()
+				if "SpecularColour" in currentTextureName:
 					textureNodeList = cmds.ls(currentTextureName)
 					specColTextureNode = textureNodeList[0]
 					cmds.connectAttr('%s.outColor'%specColTextureNode, '%s.input' %activeCC)
 
 		#if spec Roughness is ticked, connect aiImageSpecRoughness -> spec roughness CC -> shader
 		if self.ui.specRoughCheck.isChecked():
-			activeCC = aiCCnodeList[2]
+			activeCC = aiCCNodeList[2]
 			cmds.connectAttr('%s.outColorR' %activeCC, '%s.specularRoughness' %activeShaderName)
 			# connect aiImage to aiCCNode
 			for i in range(0, 4): 
-				currentTextureName = self.textboxes[i][0].toPlainText()
-				if "specRoughness" in currentTextureName:
+				currentTextureName = self.textboxesArr[i][0].toPlainText()
+				if "SpecularRoughness" in currentTextureName:
 					textureNodeList = cmds.ls(currentTextureName)
 					specRoughTextureNode = textureNodeList[0]
 					cmds.connectAttr('%s.outColor'%specRoughTextureNode, '%s.input' %activeCC)
@@ -324,7 +302,7 @@ class ShaderCreator(QWidget):
 	
 #================================end of main code====================================================
 def main():
-	ui= ShaderCreator()
+	ui= CCNetworkCreator()
 	ui.show()
 	return ui
 
