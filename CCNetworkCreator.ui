@@ -1,0 +1,397 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Form</class>
+ <widget class="QWidget" name="Form">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>600</width>
+    <height>643</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <widget class="QComboBox" name="aiSScomboBox">
+   <property name="geometry">
+    <rect>
+     <x>30</x>
+     <y>40</y>
+     <width>151</width>
+     <height>21</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label">
+   <property name="geometry">
+    <rect>
+     <x>30</x>
+     <y>20</y>
+     <width>161</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Select geometry (*_ geo)</string>
+   </property>
+  </widget>
+  <widget class="QGroupBox" name="groupBox">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>300</y>
+     <width>550</width>
+     <height>201</height>
+    </rect>
+   </property>
+   <property name="title">
+    <string>Create Texture File (aiImage)</string>
+   </property>
+   <widget class="QTextEdit" name="INtexture1">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>60</y>
+      <width>131</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="verticalScrollBarPolicy">
+     <enum>Qt::ScrollBarAlwaysOff</enum>
+    </property>
+   </widget>
+   <widget class="QTextEdit" name="fileBox1">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>150</x>
+      <y>60</y>
+      <width>370</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="cursor" stdset="0">
+     <cursorShape>IBeamCursor</cursorShape>
+    </property>
+    <property name="verticalScrollBarPolicy">
+     <enum>Qt::ScrollBarAlwaysOff</enum>
+    </property>
+   </widget>
+   <widget class="QToolButton" name="fileLinkBtn1">
+    <property name="geometry">
+     <rect>
+      <x>520</x>
+      <y>60</y>
+      <width>25</width>
+      <height>19</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>...</string>
+    </property>
+   </widget>
+   <widget class="QTextEdit" name="fileBox2">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>150</x>
+      <y>90</y>
+      <width>370</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="cursor" stdset="0">
+     <cursorShape>IBeamCursor</cursorShape>
+    </property>
+    <property name="verticalScrollBarPolicy">
+     <enum>Qt::ScrollBarAlwaysOff</enum>
+    </property>
+   </widget>
+   <widget class="QToolButton" name="fileLinkBtn2">
+    <property name="geometry">
+     <rect>
+      <x>520</x>
+      <y>90</y>
+      <width>25</width>
+      <height>19</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>...</string>
+    </property>
+   </widget>
+   <widget class="QTextEdit" name="fileBox3">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>150</x>
+      <y>120</y>
+      <width>370</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="cursor" stdset="0">
+     <cursorShape>IBeamCursor</cursorShape>
+    </property>
+    <property name="verticalScrollBarPolicy">
+     <enum>Qt::ScrollBarAlwaysOff</enum>
+    </property>
+   </widget>
+   <widget class="QToolButton" name="fileLinkBtn3">
+    <property name="geometry">
+     <rect>
+      <x>520</x>
+      <y>120</y>
+      <width>25</width>
+      <height>19</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>...</string>
+    </property>
+   </widget>
+   <widget class="QTextEdit" name="fileBox4">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>150</x>
+      <y>150</y>
+      <width>370</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="cursor" stdset="0">
+     <cursorShape>IBeamCursor</cursorShape>
+    </property>
+    <property name="verticalScrollBarPolicy">
+     <enum>Qt::ScrollBarAlwaysOff</enum>
+    </property>
+   </widget>
+   <widget class="QToolButton" name="fileLinkBtn4">
+    <property name="geometry">
+     <rect>
+      <x>520</x>
+      <y>150</y>
+      <width>25</width>
+      <height>19</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>...</string>
+    </property>
+   </widget>
+   <widget class="QTextEdit" name="INtexture2">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>90</y>
+      <width>131</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="verticalScrollBarPolicy">
+     <enum>Qt::ScrollBarAlwaysOff</enum>
+    </property>
+   </widget>
+   <widget class="QTextEdit" name="INtexture3">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>120</y>
+      <width>131</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="verticalScrollBarPolicy">
+     <enum>Qt::ScrollBarAlwaysOff</enum>
+    </property>
+   </widget>
+   <widget class="QTextEdit" name="INtexture4">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>150</y>
+      <width>131</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="verticalScrollBarPolicy">
+     <enum>Qt::ScrollBarAlwaysOff</enum>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="createAIImg">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>30</y>
+      <width>171</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Create aiImage Node</string>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QLabel" name="label_5">
+   <property name="geometry">
+    <rect>
+     <x>30</x>
+     <y>70</y>
+     <width>151</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Select shader (*_shdr)</string>
+   </property>
+  </widget>
+  <widget class="QComboBox" name="shaderComboBox">
+   <property name="geometry">
+    <rect>
+     <x>30</x>
+     <y>90</y>
+     <width>151</width>
+     <height>21</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="assignShaderBtn">
+   <property name="geometry">
+    <rect>
+     <x>200</x>
+     <y>90</y>
+     <width>171</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Assign shader to geometry</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_2">
+   <property name="geometry">
+    <rect>
+     <x>30</x>
+     <y>140</y>
+     <width>281</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Select Textures and aiCC nodes to be created</string>
+   </property>
+  </widget>
+  <widget class="QComboBox" name="shaderComboBox2">
+   <property name="geometry">
+    <rect>
+     <x>30</x>
+     <y>160</y>
+     <width>131</width>
+     <height>22</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QCheckBox" name="baseColCheck">
+   <property name="geometry">
+    <rect>
+     <x>30</x>
+     <y>200</y>
+     <width>251</width>
+     <height>17</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Base Colour</string>
+   </property>
+  </widget>
+  <widget class="QCheckBox" name="specColCheck">
+   <property name="geometry">
+    <rect>
+     <x>30</x>
+     <y>230</y>
+     <width>191</width>
+     <height>17</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Specular Colour</string>
+   </property>
+  </widget>
+  <widget class="QCheckBox" name="specRoughCheck">
+   <property name="geometry">
+    <rect>
+     <x>30</x>
+     <y>260</y>
+     <width>141</width>
+     <height>17</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Specular Roughness</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="selShaderBtn">
+   <property name="geometry">
+    <rect>
+     <x>240</x>
+     <y>560</y>
+     <width>291</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Select Shader</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="connectaiCCBtn">
+   <property name="geometry">
+    <rect>
+     <x>240</x>
+     <y>600</y>
+     <width>291</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Connect created nodes in selected channels</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="createCCNode">
+   <property name="geometry">
+    <rect>
+     <x>240</x>
+     <y>520</y>
+     <width>291</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Create colour correct node(s)</string>
+   </property>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
