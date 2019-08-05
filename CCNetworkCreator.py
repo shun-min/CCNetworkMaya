@@ -164,8 +164,13 @@ class CCNetworkCreator(QWidget):
 			tickedAttribList.remove(updatedAttr)
 
 	# create Textures (aiImage) 
-	# will only work when checkbox is ticked 
+	''' 
+	Will only work when checkbox is ticked
+	TODO: add exception to catch error when user doesn't specify textures to be created. 
+	In 2nd for loop, replace the hard-coded "aiImage" string
+	'''
 	def createAIImg(self,*args):
+
 		# hard coded array to store texboxes. Look for comments above connectCCNetwork().
 		self.textboxesArr = [[self.ui.INtexture1,self.ui.fileBox1],[self.ui.INtexture2,self.ui.fileBox2],[self.ui.INtexture3,self.ui.fileBox3],[self.ui.INtexture4,self.ui.fileBox4]]
 
@@ -241,64 +246,53 @@ class CCNetworkCreator(QWidget):
 			aiCCNodeList.append(renamedCC)
 
 	# Select shader again for assignment to work
-	def selShaderBtnPressed(self, *args):		
+	def selShaderBtnPressed(self, *args):
 		activeShaderName = str(self.ui.shaderComboBox2.currentText())
 		cmds.select(activeShaderName)
 
-	# Connects aiImage to aiColorCorrect and then to selected shader. 
-	# The code loops through the hard-coded global textboxes array, looks for the aiImg node name that matches the ticked attribute name. 
-	# Name of the correct node is retrieved as str for connectAttr()
-
-	# Future improvements: 
-	# 1.All attribute checkboxes are ticked WITH THE RIGHT ORDER
-	# 2. This code only works once. If a new set of aiImg nodes, are created, the code breaks
-
+	'''
+	Connects aiImage to aiColorCorrect and then to selected shader. 
+	The code loops through the hard-coded global textboxes array, looks for the aiImg node name that matches the ticked attribute name. 
+	Name of the correct node is retrieved as str for connectAttr()
+ 
+	TODO: 
+	1.All attribute checkboxes are ticked WITH THE RIGHT ORDER
+	2. This code only works once. If a new set of aiImg nodes, are created, the code breaks
+	'''
 	def connectCCNetwork(self, *args):
 		activeShaderName = str(self.ui.shaderComboBox2.currentText())
-		activeShader = cmds.select(activeShaderName, r = True)
+		cmds.select(activeShaderName, r = True)
 
 		# if base color checkbox is ticked, connect aiImagebase color -> base colour CC node -> shader
 		if self.ui.baseColCheck.isChecked():
 			# Users might tick the checkboxes in various orders. This step makes sure that the correct CC node is connected to the correct channel
 
-			activeCC = aiCCNodeList[0]
-			cmds.connectAttr('%s.outColor' %activeCC ,'%s.baseColor' %activeShaderName)
-			# connect aiImage to aiCCNode
+			# Put values of 3 checkbox into array
+			for i in range(0,3):
+				activeCC = aiCCNodeList[i]
 
-			for i in range(0, 4): 
-				currentTextureName = self.textboxesArr[i][0].toPlainText()
-				print currentTextureName
-				if "BaseColour" in currentTextureName:
-					print "connecting aiImg to CCNode"
-					textureNodeList = cmds.ls(currentTextureName)
-					print textureNodeList
-					baseColTextureNode = textureNodeList[0]
-					cmds.connectAttr('%s.outColor'%baseColTextureNode, '%s.input' %activeCC)
-		
-		#if spec color checkbox is ticked, connect aiImagespeccolor ->spec colour CC node -> shader
-		if self.ui.specColCheck.isChecked():
-			activeCC = aiCCNodeList[1]
-			cmds.connectAttr('%s.outColor' %activeCC, '%s.specularColor' %activeShaderName)
-			# connect aiImage to aiCCNode
-			for i in range(0, 4): 
-				currentTextureName = self.textboxesArr[i][0].toPlainText()
-				if "SpecularColour" in currentTextureName:
-					textureNodeList = cmds.ls(currentTextureName)
-					specColTextureNode = textureNodeList[0]
-					cmds.connectAttr('%s.outColor'%specColTextureNode, '%s.input' %activeCC)
+				# connect aiImage to aiCCNode
+				# TODO: get number of textboxes to loop this.
+				for j in range(0, 4):
+					currentTextureName = self.textboxesArr[j][0].toPlainText()
+					if "BaseColour" in currentTextureName:
+						cmds.connectAttr('%s.outColor' % activeCC, '%s.baseColor' % activeShaderName)
+						textureNodeList = cmds.ls(currentTextureName)
+						print textureNodeList
+						baseColTextureNode = textureNodeList[0]
+						cmds.connectAttr('%s.outColor'%baseColTextureNode, '%s.input' %activeCC)
 
-		#if spec Roughness is ticked, connect aiImageSpecRoughness -> spec roughness CC -> shader
-		if self.ui.specRoughCheck.isChecked():
-			activeCC = aiCCNodeList[2]
-			cmds.connectAttr('%s.outColorR' %activeCC, '%s.specularRoughness' %activeShaderName)
-			# connect aiImage to aiCCNode
-			for i in range(0, 4): 
-				currentTextureName = self.textboxesArr[i][0].toPlainText()
-				if "SpecularRoughness" in currentTextureName:
-					textureNodeList = cmds.ls(currentTextureName)
-					specRoughTextureNode = textureNodeList[0]
-					cmds.connectAttr('%s.outColor'%specRoughTextureNode, '%s.input' %activeCC)
-	
+					if "SpecularColour" in currentTextureName:
+						cmds.connectAttr('%s.outColor' % activeCC, '%s.specularColor' % activeShaderName)
+						textureNodeList = cmds.ls(currentTextureName)
+						specColTextureNode = textureNodeList[0]
+						cmds.connectAttr('%s.outColor' % specColTextureNode, '%s.input' % activeCC)
+
+					if "SpecularRoughness" in currentTextureName:
+						cmds.connectAttr('%s.outColorR' % activeCC, '%s.specularRoughness' % activeShaderName)
+						textureNodeList = cmds.ls(currentTextureName)
+						specRoughTextureNode = textureNodeList[0]
+						cmds.connectAttr('%s.outColor' % specRoughTextureNode, '%s.input' % activeCC)
 	
 #================================end of main code====================================================
 def main():
