@@ -303,7 +303,7 @@
     <string>Select Textures and aiCC nodes to be created</string>
    </property>
   </widget>
-  <widget class="QComboBox" name="shaderComboBox2">
+  <widget class="QComboBox" name="activeShaderBox">
    <property name="geometry">
     <rect>
      <x>30</x>
