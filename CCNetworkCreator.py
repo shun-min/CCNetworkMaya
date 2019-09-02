@@ -247,34 +247,34 @@ class CCNetworkCreator(QWidget):
 	'''
 	def connectCCNetwork(self, *args):
 		activeShaderName = str(self.ui.activeShaderBox.currentText())
-		cmds.select(activeShaderName, r = True)
-
+		cmds.select(activeShaderName, r=True)
+		textureNodeList = []
 		# if base color checkbox is ticked, connect aiImagebase color -> base colour CC node -> shader
 		# Users might tick the checkboxes in various orders. This step makes sure that the correct CC node is connected to the correct channel
 
 		# Put values of 3 checkbox into array
-        for i in range(0,3):
-            currentTextureName = textboxesArr[i].toPlainText()
-            textureNodeList.push(currentTextureName)
+		for i in range(0, 3):
+			currentTextureName = self.textboxesArr[i][0].toPlainText()
+			textureNodeList.append(currentTextureName)
 
-        for j in range(0,3):
-            if self.ui.baseColCheck.isChecked():
-                cmds.connectAttr('%s.outColor' %activeCC, '%s.baseColor' %activeShaderName)
-                activeCC = aiCCNodeList[0]
-                baseColTextureNode = textureNodeList[0]
-                cmds.connectAttr('%s.outColor'%baseColTextureNode, '%s.input' %activeCC)
+		for j in range(0, 3):
+			if self.ui.baseColCheck.isChecked():
+				activeCC = aiCCNodeList[0]
+				cmds.connectAttr('%s.outColor' % activeCC, '%s.baseColor' % activeShaderName)
+				baseColTextureNode = textureNodeList[0]
+				cmds.connectAttr('%s.outColor' % baseColTextureNode, '%s.input' % activeCC)
 
-            if self.ui.specColCheck.isChecked():
-                activeCC = aiCCNodeList[1]
-                cmds.connectAttr('%s.outColor' %activeCC, '%s.specularColor' %activeShaderName)
-                specColTextureNode = textureNodeList[1]
-                cmds.connectAttr('%s.outColor' %specColTextureNode, '%s.input' %activeCC)
+			if self.ui.specColCheck.isChecked():
+				activeCC = aiCCNodeList[1]
+				cmds.connectAttr('%s.outColor' % activeCC, '%s.specularColor' % activeShaderName)
+				specColTextureNode = textureNodeList[1]
+				cmds.connectAttr('%s.outColor' % specColTextureNode, '%s.input' % activeCC)
 
-            if self.ui.specRoughCheck.isChecked():
-                cmds.connectAttr('%s.outColorR' %activeCC, '%s.specularRoughness' %activeShaderName)
-                activeCC = aiCCNodeList[2]
-                specRoughTextureNode = textureNodeList[2]
-                cmds.connectAttr('%s.outColor' %specRoughTextureNode, '%s.input' %activeCC)
+			if self.ui.specRoughCheck.isChecked():
+				activeCC = aiCCNodeList[2]
+				cmds.connectAttr('%s.outColorR' % activeCC, '%s.specularRoughness' % activeShaderName)
+				specRoughTextureNode = textureNodeList[2]
+				cmds.connectAttr('%s.outColor' % specRoughTextureNode, '%s.input' % activeCC)
 
 def main():
 	ui= CCNetworkCreator()
